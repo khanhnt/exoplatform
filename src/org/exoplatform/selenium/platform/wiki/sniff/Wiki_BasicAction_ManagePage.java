@@ -59,7 +59,8 @@ public class Wiki_BasicAction_ManagePage {
 	public static void main(String[] args) {
 		Wiki_BasicAction_ManagePage wiki = new Wiki_BasicAction_ManagePage();
 		//wiki.test01_AddPage_AutoSaveWhenAddingPage();
-		wiki.test02_AddPage_AutoSaveWhenAddingPageFromTemplate();
+		//wiki.test02_AddPage_AutoSaveWhenAddingPageFromTemplate();
+		wiki.test03_AddPage_CreatePageFromTemplate();
 	}
 	 public void waitForPageLoaded(WebDriver driver) {
 
@@ -156,7 +157,7 @@ public class Wiki_BasicAction_ManagePage {
 	 * Created by khanhnt at Nov 12, 2013
 	 */
 	public void test02_AddPage_AutoSaveWhenAddingPageFromTemplate() {
-EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
+		EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
 	    
 		//Get left navigations
 		WebElement uiCompanyNavigations = this.firefoxDriver.
@@ -270,6 +271,102 @@ EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
 	 * Created by khanhnt at Nov 12, 2013
 	 */
 	public void test03_AddPage_CreatePageFromTemplate() {
+		EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
+	    
+		//Get left navigations
+		WebElement uiCompanyNavigations = this.firefoxDriver.
+				findElement(By.className("uiCompanyNavigations"));
+		
+		//Click on Wiki
+		uiCompanyNavigations.findElement(By.linkText("Wiki")).click();
+		
+		//Wait for wiki page load
+		this.waitForPageLoaded(this.firefoxDriver);
+		
+		//Get wiki page control area
+		WebElement uiWikiPageContentArea  = this.firefoxDriver.findElement(By.id("UIWikiPageControlArea"));	
+		
+		//Get page tool bar of wiki page control area 
+		WebElement uiWikiPageControlArea_PageToolBar = uiWikiPageContentArea.
+				findElement(By.id("UIWikiPageControlArea_PageToolBar"));
+		
+		//Get three buttons Edit, Add Page and More
+		List<WebElement> buttons = uiWikiPageControlArea_PageToolBar.findElements(By.tagName("div"));
+		
+		for (WebElement button : buttons) {
+			if(button.getText().equalsIgnoreCase("Add Page")){
+				
+				button.click();
+				
+				uiWikiPageControlArea_PageToolBar.findElement
+						(By.className("uiIconAddPageFromTemplate")).click();
+				
+				this.waitForPageLoaded(this.firefoxDriver);
+
+				for (String handle : this.firefoxDriver.getWindowHandles()) {
+					this.firefoxDriver.switchTo().window(handle);
+					
+					//Get  Wiki Popup template Form
+					WebElement UIWikiSelectTemplateForm = this.firefoxDriver.
+							findElement(By.id("UIWikiSelectTemplateForm"));
+					
+					if(UIWikiSelectTemplateForm !=null){
+						//Get list of radio button
+						List<WebElement> radios = UIWikiSelectTemplateForm.
+								findElement(By.id("UIWikiTemplateGrid"))
+						.findElements(By.className("uiRadio"));
+						
+						//Loop radios to choice expected radio
+						for (int i=0;i<radios.size();i++) {
+							
+							WebElement radio = radios.get(i);
+							try{
+								WebElement realRadio = radio.findElement(By.tagName("input"));
+						       if(realRadio.getAttribute("value").equalsIgnoreCase("Two-Column_Layout")){
+						    	   realRadio.click();
+						    	   
+						    	   //Get Select button
+								   List<WebElement> divs= UIWikiSelectTemplateForm.findElements(By.tagName("div"));
+								   for (WebElement div : divs) {
+									   
+										if(div.getAttribute("class").equalsIgnoreCase("uiAction uiActionBorder")){
+											
+											div.findElement(By.linkText("Select")).click();
+											
+											this.waitForPageLoaded(this.firefoxDriver);
+											
+											//Add title
+											WebElement uiColsLeftsEditForm = this.firefoxDriver.
+													findElement(By.className("uiColsLeftsEditForm"));
+											
+											WebElement UISubmitToolBarUpper = uiColsLeftsEditForm.findElement(By.id("UISubmitToolBarUpper"));
+											
+											WebElement UISubmitToolBarUpper_SavePage_ = UISubmitToolBarUpper.findElement(By.id("UISubmitToolBarUpper_SavePage_"));
+											
+											UISubmitToolBarUpper_SavePage_.click();
+											
+											//Click on Save Button of Bottom Tool Bar. May be Exception, actual Selenium 
+											//cannot scroll down the view to this button. -> scroll down manually or maximize browser
+											
+											/*WebElement UISubmitToolBarBottom = uiColsLeftsEditForm.findElement(By.id("UISubmitToolBarBottom"));
+											
+											WebElement UISubmitToolBarBottom_SavePage_ = UISubmitToolBarBottom.findElement(By.id("UISubmitToolBarBottom_SavePage_"));
+																						
+											UISubmitToolBarBottom_SavePage_.click();*/
+											
+											return;
+										}
+									}
+								}
+							}catch(Exception e){
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+				
+			}
+		}
 	}
 
 	/**
