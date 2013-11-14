@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.exoplatform.selenium.platform.EXO_TAG_IDENTIFIER;
+import org.exoplatform.selenium.platform.wiki.WikiUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -23,8 +24,7 @@ import org.openqa.selenium.JavascriptExecutor;
  */
 
 public class Wiki_BasicAction_ManagePage {
-	WebDriver firefoxDriver;
-	WebDriver chromeDriver;
+	
 	final String LOG_PATH = "/home/khanhnt/workspace/exoplatform/log/";
 	final String SERVER_PATH="http://localhost:8080/portal/intranet/home";
 
@@ -35,7 +35,9 @@ public class Wiki_BasicAction_ManagePage {
 		// TODO Auto-generated constructor stub
 		System.setProperty("webdriver.chrome.driver",
 				"/home/khanhnt/working/env/chromedriver");
-		this.firefoxDriver = new FirefoxDriver();
+		//driver = new driver();
+		
+		
 		//this.chromeDriver = new ChromeDriver();
 	}
 
@@ -57,10 +59,17 @@ public class Wiki_BasicAction_ManagePage {
 	}
 	
 	public static void main(String[] args) {
+		WebDriver driver = new FirefoxDriver();
+		WebDriver chromeDriver;
 		Wiki_BasicAction_ManagePage wiki = new Wiki_BasicAction_ManagePage();
-		//wiki.test01_AddPage_AutoSaveWhenAddingPage();
-		//wiki.test02_AddPage_AutoSaveWhenAddingPageFromTemplate();
-		wiki.test03_AddPage_CreatePageFromTemplate();
+		EXO_TAG_IDENTIFIER.login(driver);
+		//wiki.test01_AddPage_AutoSaveWhenAddingPage(driver);
+		//wiki.test02_AddPage_AutoSaveWhenAddingPageFromTemplate(driver);
+		//System.out.println("#################Done test 02####################");
+		//wiki.test03_AddPage_CreatePageFromTemplate(driver);
+		//System.out.println("#################Done test 03####################");
+		wiki.test04_AddPage_CreatePageUsingRichTextEditor(driver);
+		System.out.println("#################Done test 04####################");
 	}
 	 public void waitForPageLoaded(WebDriver driver) {
 
@@ -81,304 +90,114 @@ public class Wiki_BasicAction_ManagePage {
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test01_AddPage_AutoSaveWhenAddingPage() {
+	public void test01_AddPage_AutoSaveWhenAddingPage(WebDriver driver) {
+		    
+		WikiUtil.navigateToWikiHome(driver);
 		
-		EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
-	    
-		//Get left navigations
-		WebElement uiCompanyNavigations = this.firefoxDriver.
-				findElement(By.className("uiCompanyNavigations"));
+		WikiUtil.pause(5000);
 		
-		//Click on Wiki
-		uiCompanyNavigations.findElement(By.linkText("Wiki")).click();
+		WikiUtil.addBlankPage_WikiHome(driver);
 		
-		//Wait for wiki page load
-		this.waitForPageLoaded(this.firefoxDriver);
+		WikiUtil.pause(5000);
 		
-		//Get wiki page control area
-		WebElement uiWikiPageContentArea  = this.firefoxDriver.findElement(By.id("UIWikiPageControlArea"));	
-		
-		//Get page tool bar of wiki page control area 
-		WebElement uiWikiPageControlArea_PageToolBar = uiWikiPageContentArea.
-				findElement(By.id("UIWikiPageControlArea_PageToolBar"));
-		
-		//Get trees buttons Edit, Add Page and More
-		List<WebElement> buttons = uiWikiPageControlArea_PageToolBar.findElements(By.tagName("div"));
-		
-		//Loop trees buttons to find Add Page
-		for (WebElement button : buttons) {
-			if(button.getText().equalsIgnoreCase("Add Page")){
-				button.click();
-				
-				//Click on Add Page drop menu
-				uiWikiPageControlArea_PageToolBar.findElement(By.className("uiIconAddPage")).click();
-				
-				//Wait for wiki edit page load
-				this.waitForPageLoaded(this.firefoxDriver);
 
-				//Add title
-				this.firefoxDriver.findElement(By.className("uiColsLeftsEditForm"))
-				.findElement(By.id("UIWikiPageTitleControlForm_PageEditForm"))
-				.findElement(By.id("titleInput")).sendKeys("test01_AddPage_AutoSaveWhenAddingPage title");
-				
-				//Add content
-				this.firefoxDriver.findElement(By.className("uiColsLeftsEditForm"))
-				.findElement(By.id("Markup")).sendKeys("test01_AddPage_AutoSaveWhenAddingPage conten");
-				
-			
-				//wait 30 seconds
-				ExpectedCondition<Boolean> expectation = new ExpectedCondition<Boolean>() {
-			        public Boolean apply(WebDriver driver) {
-			        	return false;	        	
-			        }
-			      };
-
-			     Wait<WebDriver> wait = new WebDriverWait(this.firefoxDriver,30);
-			      try {
-			              wait.until(expectation);
-			      } catch(Throwable error) {
-			      }
-				
-			    //Get message 
-				String msg= this.firefoxDriver.findElement(By.className("btn-toolbar"))
-			      .findElement(By.className("uiWikiPageEditForm_MessageArea")).getText();
-			     
-				if(msg.contains("Draft saved at "))
-					System.out.println("Test 01 pass");
-				else
-					System.out.println("Test 01 not done");
-				break;
-			}
-		}
+		//Add title
+		WikiUtil.changeTitle_WikiPage_WikiHome(driver, "test01_AddPage_AutoSaveWhenAddingPage title");
+		//Add content
+		WikiUtil.changeContent_WikiPage_WikiHome(driver, "test01_AddPage_AutoSaveWhenAddingPage conten");
+		
+		WikiUtil.pause(30000);
+		
+		
+		 //Get message 
+		String msg= driver.findElement(By.className("btn-toolbar"))
+	      .findElement(By.className("uiWikiPageEditForm_MessageArea")).getText();
+	     
+		if(msg.contains("Draft saved at "))
+			System.out.println("Test 01 pass");
+		else
+			System.out.println("Test 01 not done");
 
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test02_AddPage_AutoSaveWhenAddingPageFromTemplate() {
-		EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
+	public void test02_AddPage_AutoSaveWhenAddingPageFromTemplate(WebDriver driver) {
+		
 	    
-		//Get left navigations
-		WebElement uiCompanyNavigations = this.firefoxDriver.
-				findElement(By.className("uiCompanyNavigations"));
-		
-		//Click on Wiki
-		uiCompanyNavigations.findElement(By.linkText("Wiki")).click();
-		
-		//Wait for wiki page load
-		this.waitForPageLoaded(this.firefoxDriver);
-		
-		//Get wiki page control area
-		WebElement uiWikiPageContentArea  = this.firefoxDriver.findElement(By.id("UIWikiPageControlArea"));	
-		
-		//Get page tool bar of wiki page control area 
-		WebElement uiWikiPageControlArea_PageToolBar = uiWikiPageContentArea.
-				findElement(By.id("UIWikiPageControlArea_PageToolBar"));
-		
-		//Get three buttons Edit, Add Page and More
-		List<WebElement> buttons = uiWikiPageControlArea_PageToolBar.findElements(By.tagName("div"));
-		
-		for (WebElement button : buttons) {
-			if(button.getText().equalsIgnoreCase("Add Page")){
+		WikiUtil.navigateToWikiHome(driver);
 				
-				button.click();
-				
-				uiWikiPageControlArea_PageToolBar.findElement
-						(By.className("uiIconAddPageFromTemplate")).click();
-				
-				this.waitForPageLoaded(this.firefoxDriver);
-
-				for (String handle : this.firefoxDriver.getWindowHandles()) {
-					this.firefoxDriver.switchTo().window(handle);
-					
-					//Get  Wiki Popup template Form
-					WebElement UIWikiSelectTemplateForm = this.firefoxDriver.
-							findElement(By.id("UIWikiSelectTemplateForm"));
-					
-					if(UIWikiSelectTemplateForm !=null){
-						//Get list of radio button
-						List<WebElement> radios = UIWikiSelectTemplateForm.
-								findElement(By.id("UIWikiTemplateGrid"))
-						.findElements(By.className("uiRadio"));
-						
-						//Loop radios to choice expected radio
-						for (int i=0;i<radios.size();i++) {
-							
-							WebElement radio = radios.get(i);
-							try{
-								WebElement realRadio = radio.findElement(By.tagName("input"));
-						       if(realRadio.getAttribute("value").equalsIgnoreCase("Two-Column_Layout")){
-						    	   realRadio.click();
-						    	   
-						    	   //Get Select button
-								   List<WebElement> divs= UIWikiSelectTemplateForm.findElements(By.tagName("div"));
-								   for (WebElement div : divs) {
-									   
-										if(div.getAttribute("class").equalsIgnoreCase("uiAction uiActionBorder")){
-											
-											div.findElement(By.linkText("Select")).click();
-											
-											this.waitForPageLoaded(this.firefoxDriver);
-											
-											//Add title
-											this.firefoxDriver.findElement(By.className("uiColsLeftsEditForm"))
-											.findElement(By.id("UIWikiPageTitleControlForm_PageEditForm"))
-											.findElement(By.id("titleInput")).sendKeys("test01_AddPage_AutoSaveWhenAddingPage title");
-											
-											//Add content
-											this.firefoxDriver.findElement(By.className("uiColsLeftsEditForm"))
-											.findElement(By.id("Markup")).sendKeys("test01_AddPage_AutoSaveWhenAddingPage conten");
-											
-											ExpectedCondition<Boolean> expectation = new ExpectedCondition<Boolean>() {
-										        public Boolean apply(WebDriver driver) {
-										        	return false;	        	
-										        }
-										      };
-
-										     Wait<WebDriver> wait = new WebDriverWait(this.firefoxDriver,30);
-										      try {
-										              wait.until(expectation);
-										      } catch(Throwable error) {
-										      }
-											
-										    
-											String msg= this.firefoxDriver.findElement(By.className("btn-toolbar"))
-										      .findElement(By.className("uiWikiPageEditForm_MessageArea")).getText();
-										     
-											if(msg.contains("Draft saved at "))
-												System.out.println("Test 02 pass");
-											else
-												System.out.println("Test 02 not done");
-										     
-											return;
-										}
-									}
-								}
-							}catch(Exception e){
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-				
-			}
-		}
+		WikiUtil.pause(5000);	
+		
+		WikiUtil.addPage_FromTemplate_WikiHome(driver,"Two-Column_Layout");
+		
+		WikiUtil.pause(5000);
+		
+		//Add title
+		WikiUtil.changeTitle_WikiPage_WikiHome(driver, "test01_AddPage_AutoSaveWhenAddingPage title");
+		//Add content
+		WikiUtil.changeContent_WikiPage_WikiHome(driver, "test01_AddPage_AutoSaveWhenAddingPage conten");
+		
+		WikiUtil.pause(30000);
+		
+		String msg= driver.findElement(By.className("btn-toolbar"))
+			      .findElement(By.className("uiWikiPageEditForm_MessageArea")).getText();
+			     
+		if(msg.contains("Draft saved at "))
+			System.out.println("Test 02 pass");
+		else
+			System.out.println("Test 02 not done");
+		
 	}
 
 	
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test03_AddPage_CreatePageFromTemplate() {
-		EXO_TAG_IDENTIFIER.login(this.firefoxDriver);
+	public void test03_AddPage_CreatePageFromTemplate(WebDriver driver) {
+		//EXO_TAG_IDENTIFIER.login(driver);
 	    
-		//Get left navigations
-		WebElement uiCompanyNavigations = this.firefoxDriver.
-				findElement(By.className("uiCompanyNavigations"));
+		WikiUtil.navigateToWikiHome(driver);
+				
+		//Wait for wiki page load
+		WikiUtil.pause(5000);
 		
-		//Click on Wiki
-		uiCompanyNavigations.findElement(By.linkText("Wiki")).click();
+		WikiUtil.addPage_FromTemplate_WikiHome(driver,"Two-Column_Layout");
 		
 		//Wait for wiki page load
-		this.waitForPageLoaded(this.firefoxDriver);
-		
-		//Get wiki page control area
-		WebElement uiWikiPageContentArea  = this.firefoxDriver.findElement(By.id("UIWikiPageControlArea"));	
-		
-		//Get page tool bar of wiki page control area 
-		WebElement uiWikiPageControlArea_PageToolBar = uiWikiPageContentArea.
-				findElement(By.id("UIWikiPageControlArea_PageToolBar"));
-		
-		//Get three buttons Edit, Add Page and More
-		List<WebElement> buttons = uiWikiPageControlArea_PageToolBar.findElements(By.tagName("div"));
-		
-		for (WebElement button : buttons) {
-			if(button.getText().equalsIgnoreCase("Add Page")){
+		WikiUtil.pause(5000);
 				
-				button.click();
-				
-				uiWikiPageControlArea_PageToolBar.findElement
-						(By.className("uiIconAddPageFromTemplate")).click();
-				
-				this.waitForPageLoaded(this.firefoxDriver);
+		WikiUtil.saveWikiPage_WikiHome(driver);
 
-				for (String handle : this.firefoxDriver.getWindowHandles()) {
-					this.firefoxDriver.switchTo().window(handle);
-					
-					//Get  Wiki Popup template Form
-					WebElement UIWikiSelectTemplateForm = this.firefoxDriver.
-							findElement(By.id("UIWikiSelectTemplateForm"));
-					
-					if(UIWikiSelectTemplateForm !=null){
-						//Get list of radio button
-						List<WebElement> radios = UIWikiSelectTemplateForm.
-								findElement(By.id("UIWikiTemplateGrid"))
-						.findElements(By.className("uiRadio"));
-						
-						//Loop radios to choice expected radio
-						for (int i=0;i<radios.size();i++) {
-							
-							WebElement radio = radios.get(i);
-							try{
-								WebElement realRadio = radio.findElement(By.tagName("input"));
-						       if(realRadio.getAttribute("value").equalsIgnoreCase("Two-Column_Layout")){
-						    	   realRadio.click();
-						    	   
-						    	   //Get Select button
-								   List<WebElement> divs= UIWikiSelectTemplateForm.findElements(By.tagName("div"));
-								   for (WebElement div : divs) {
-									   
-										if(div.getAttribute("class").equalsIgnoreCase("uiAction uiActionBorder")){
-											
-											div.findElement(By.linkText("Select")).click();
-											
-											this.waitForPageLoaded(this.firefoxDriver);
-											
-											//Add title
-											WebElement uiColsLeftsEditForm = this.firefoxDriver.
-													findElement(By.className("uiColsLeftsEditForm"));
-											
-											WebElement UISubmitToolBarUpper = uiColsLeftsEditForm.findElement(By.id("UISubmitToolBarUpper"));
-											
-											WebElement UISubmitToolBarUpper_SavePage_ = UISubmitToolBarUpper.findElement(By.id("UISubmitToolBarUpper_SavePage_"));
-											
-											UISubmitToolBarUpper_SavePage_.click();
-											
-											//Click on Save Button of Bottom Tool Bar. May be Exception, actual Selenium 
-											//cannot scroll down the view to this button. -> scroll down manually or maximize browser
-											
-											/*WebElement UISubmitToolBarBottom = uiColsLeftsEditForm.findElement(By.id("UISubmitToolBarBottom"));
-											
-											WebElement UISubmitToolBarBottom_SavePage_ = UISubmitToolBarBottom.findElement(By.id("UISubmitToolBarBottom_SavePage_"));
-																						
-											UISubmitToolBarBottom_SavePage_.click();*/
-											
-											return;
-										}
-									}
-								}
-							}catch(Exception e){
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-				
-			}
-		}
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test04_AddPage_CreatePageUsingRichTextEditor() {
+	public void test04_AddPage_CreatePageUsingRichTextEditor(WebDriver driver) {	    
+		WikiUtil.navigateToWikiHome(driver);				
+
+		WikiUtil.pause(5000);
+		
+		WikiUtil.addBlankPage_WikiHome(driver);
+		
+		WikiUtil.pause(5000);
+		
+		WikiUtil.getButton_WikiPageEditForm(driver, "Rich Text").click();		
+
+		WikiUtil.pause(5000);
+		
+		WebElement linkItem = WikiUtil.getMenuBarItem_WikiRichTextEditor(driver, "Link");
+		linkItem.click();
+			
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test05_AddPage_CreatePageUsingSourceEditor() {
+	public void test05_AddPage_CreatePageUsingSourceEditor(WebDriver driver) {
+		WikiUtil.navigateToWikiHome(driver);
 	}
 
 	/**
