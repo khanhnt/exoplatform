@@ -6,6 +6,7 @@ package org.exoplatform.selenium.platform.wiki;
 
 import java.util.List;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -65,7 +66,9 @@ public class WikiUtil {
 	 * @return
 	 */
 	private static WebElement getMyDraffItem(WebDriver driver){
-		return getBrowserToolBar(driver).findElements(By.tagName("li")).get(0);
+		return getUIWikiUpperArea(driver).
+				findElement(By.id("UIWikiToolBar_Browse_"))
+				.findElement(By.linkText("My Drafts"));
 	}
 	 /**
 	  * Get Wiki Setting Item.
@@ -91,13 +94,90 @@ public class WikiUtil {
 		}
 	}
 	///-------------------------- Begin Element uiLeftContainerArea ----------------------------///
+	/**
+	 * MiddleArea -> uiLeftContainerArea.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @return
+	 */
+	private static WebElement getuiLeftContainerArea(WebDriver driver){
+		return getUIWikiMiddleArea(driver).findElement(By.className("uiLeftContainerArea"));
+	}
+	/**
+	 * MiddleArea -> uiLeftContainerArea -> UITreeExplorer.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @return
+	 */
+	private static WebElement getUITreeExplorer(WebDriver driver){
+		return getuiLeftContainerArea(driver).findElement(By.id("UITreeExplorer"));
+	}
+	
+	private static WebElement getNode_UITreeExplorer(WebDriver driver, String nodeName){
+		WebElement UITreeExplorer = getUITreeExplorer(driver);
+		return UITreeExplorer.findElement(By.linkText(nodeName));
+	}
 	///-------------------------- End Element uiLeftContainerArea ------------------------------///
 	
 	///-------------------------- Begin Element uiRightContainerArea ----------------------------///
+	/**
+	 * MiddleArea -> RightContainerArea.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @return
+	 */
 	private static WebElement getuiRightContainerArea(WebDriver driver){
 		return getUIWikiMiddleArea(driver).findElement(By.className("uiRightContainerArea"));
 	}
+	/**
+	 * MiddleArea -> RightContainerArea -> WikiPageContainer.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @return
+	 */
+	private static WebElement getUIWikiPageContainer(WebDriver driver){
+		return getuiRightContainerArea(driver).findElement(By.id("UIWikiPageContainer"));
+	}
 	
+	/**
+	 * MiddleArea -> RightContainerArea -> WikiPageContainer -> DraffForm.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @return
+	 */
+	private static WebElement getUIWikiMyDraftsForm(WebDriver driver){
+		return getuiRightContainerArea(driver).findElement(By.id("UIWikiMyDraftsForm"));
+	}
+	
+	/**
+	 * MiddleArea -> RightContainerArea -> WikiPageContainer -> DraffForm -> DraffGrid
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @return
+	 */
+	private static WebElement getUIWikiDraftGrid(WebDriver driver){
+		return getUIWikiMyDraftsForm(driver).findElement(By.id("UIWikiDraftGrid"));
+	}
+	
+	/**
+	 * MiddleArea -> RightContainerArea -> WikiPageContainer -> DraffForm -> DraffGrid -> row
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @param pageTitle
+	 * @return
+	 */
+	private static WebElement getRow_WikiDraftGrid(WebDriver driver, String pageTitle){
+		WebElement draffGrid = getUIWikiDraftGrid(driver);
+		List<WebElement> trs = draffGrid.findElement(By.tagName("tbody")).findElements(By.tagName("tr"));
+		
+		for (WebElement tr : trs) {
+			String title = tr.findElement(By.className("fieldName")).
+					findElement(By.tagName("div")).getText();
+			if(title.contains(pageTitle))
+				return tr;
+		}
+		return null;
+	}
 	///-------------------------- End Element uiRightContainerArea ------------------------------///
 
 	//############################## End Element on UIWikiMiddleArea ############################//
@@ -511,86 +591,8 @@ public class WikiUtil {
 	}
 	
 
-	public static void addImage_RichTextEditor_WikiPage(WebDriver driver, PopupItem addType){
 	
-		clickOnPopupItem(driver,addType);
-		driver.switchTo().window(driver.getWindowHandle());
 	
-		switch (addType) {
-		case ATTACHED_IMAGE_UPLOAD_NEW_CURRENT_PAGE:
-			Actions builder = new Actions(driver);
-			getMenuBarItem_AddLinkImagePopup(driver, "Current page").click();
-			
-			WebElement xNewImagePreview = getListBoxImage_AddImagePopup(driver).
-					findElement(By.className("xNewImagePreview")).findElement(By.tagName("div"));
-			builder.doubleClick(xNewImagePreview);
-			builder.perform();
-			
-			break;
-		case ATTACHED_IMAGE_SELECT_ONE_CURRENT_PAGE:
-			
-			//builder.doubleClick(onElement)
-			break;
-		case ATTACHED_IMAGE_UPLOAD_NEW_ALL_PAGES:
-			break;
-		case ATTACHED_IMAGE_SELECT_ONE_ALL_PAGES:
-			break;
-		case EXTERNAL_IMAGE:
-			break;
-
-		default:
-			break;
-		}
-	}
-	/**
-	 * Add link menu of rich text editor.
-	 * Created by khanhnt at Nov 14, 2013.
-	 * @param driver
-	 * @param linkType: using LinkType to determine
-	 * @param linkContent: link content
-	 */
-	public static void addLink_RichTextEditor_WikiPage(WebDriver driver,
-			PopupItem linkType, String linkContent,String label, String tooltip,Boolean isInNewWindows) {
-
-		clickOnPopupItem(driver, linkType);	
-		driver.switchTo().window(driver.getWindowHandle());
-
-		
-		switch (linkType) {
-		case WIKI_PAGE_ADD_NEW_IN_CURRENT_SPACE:
-			break;
-		case WIKI_PAGE_SELECT_PAGE_IN_ALL_PAGES:
-			WebElement allPages = getMenuBarItem_AddLinkImagePopup(driver,
-					"All Pages");
-			
-			if (allPages != null) {
-				allPages.click();
-				pause(1000);
-				selectItem_AllPages_AddLinkPopup(driver,linkContent);
-				clickOn_SelectButton_AddLinkPopup(driver);
-				pause(500);
-				configLinkParameter_AddLinkPopup(driver,label, tooltip, isInNewWindows);
-				clickOn_CreateLinkButton_EditLinkParameter_AddLinkPopup(driver);
-			} else {
-				System.out.println("Cannot get All Pages Element");
-			}
-			break;
-		case WIKI_PAGE_SEARCH_PAGE:
-			break;
-		case ATTACHED_FILE_CURRENT_PAGE_UPLOAD_NEW_FILE:
-			break;
-		case ATTACHED_FILE_CURRENT_PAGE_SELECT_FILE:
-			break;
-		case ATTACHED_FILE_ALL_PAGE_SELECT_FILE:
-			break;
-		case WEB_PAGE:
-			break;
-		case EMAIL_ADDRESS:
-			break;
-		default:
-			break;
-		}
-	}
 
 	/**
 	 * Created by khanhnt at Nov 14, 2013. Must switch window before calling
@@ -718,4 +720,174 @@ public class WikiUtil {
 			}
 		}
 	}
+
+	//############################### About PopupWindow#######################################################//
+	
+	private static WebElement getUIWikiPopupWindowL1(WebDriver driver){
+		return getRightPageBody(driver).
+				findElement(By.id("myWikiPortlet")).
+				findElement(By.id("UIWikiPortlet")).
+				findElement(By.id("UIWikiPopupContainerL1")).
+				findElement(By.id("UIWikiPopupWindowL1"));
+	}
+	//###############################End PopupWindow##########################################################//
+	//############################### Start Business function######################################################
+	/**
+	 * Delete  a draff paqe.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @param pageTitle : Title of page
+	 */
+	public static void deleteDraffPage(WebDriver driver, String pageTitle){
+		getBrowserToolBar(driver).click();
+		pause(5000);
+		getMyDraffItem(driver).click();
+		pause(5000);
+		WebElement row = getRow_WikiDraftGrid(driver, pageTitle);
+		
+		row.findElement(By.className("center")).
+			findElement(By.className("uiIconDeleteDraft")).
+			click();
+		
+		pause(5000);
+		
+		Alert alert = driver.switchTo().alert();
+		// Get the text of the alert or prompt
+		alert.getText();  
+		// And acknowledge the alert (equivalent to clicking "OK")
+		alert.accept();
+		
+	}
+	/**
+	 * Open a draff page based on input title.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @param pageTitle
+	 */
+	public static void openDraffPage(WebDriver driver, String pageTitle){
+		getBrowserToolBar(driver).click();
+		pause(5000);
+		getMyDraffItem(driver).click();
+		pause(5000);
+		WebElement row = getRow_WikiDraftGrid(driver, pageTitle);
+		
+		row.findElement(By.linkText(
+				row.findElement(By.tagName("div")).
+				getText())).click();
+	
+	}
+	public static void openExistingWikiPage(WebDriver driver, String title){
+		getNode_UITreeExplorer(driver, title).click();
+		
+	}
+	
+	public static void deleteExistingWikiPage(WebDriver driver, String title){
+		
+		openExistingWikiPage(driver, title);
+		pause(5000);
+		getButton_WikiPageToolBar_WikiHome(driver, "More").click();
+		
+		WebElement uiWikiPageContentArea = driver.findElement(By
+				.id("UIWikiPageControlArea"));
+		uiWikiPageContentArea
+				.findElement(By.id("UIWikiPageControlArea_PageToolBar"))
+				.findElement(By.linkText("Delete Page")).click();
+		
+		pause(3000);
+		
+		//driver.switchTo().window(driver.getWindowHandle());
+		WebElement UIWikiDeletePageConfirm = getUIWikiPopupWindowL1(driver).
+				findElement(By.id("UIWikiDeletePageConfirm"));
+		
+		List<WebElement> buttons = UIWikiDeletePageConfirm.
+				findElements(By.tagName("button"));
+		for (WebElement button : buttons) {
+			if(button.getText().equalsIgnoreCase("OK")){
+				button.click();
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Add link menu of rich text editor.
+	 * Created by khanhnt at Nov 14, 2013.
+	 * @param driver
+	 * @param linkType: using LinkType to determine
+	 * @param linkContent: link content
+	 */
+	public static void addLink_RichTextEditor_WikiPage(WebDriver driver,
+			PopupItem linkType, String linkContent,String label, String tooltip,Boolean isInNewWindows) {
+
+		clickOnPopupItem(driver, linkType);	
+		driver.switchTo().window(driver.getWindowHandle());
+
+		
+		switch (linkType) {
+		case WIKI_PAGE_ADD_NEW_IN_CURRENT_SPACE:
+			break;
+		case WIKI_PAGE_SELECT_PAGE_IN_ALL_PAGES:
+			WebElement allPages = getMenuBarItem_AddLinkImagePopup(driver,
+					"All Pages");
+			
+			if (allPages != null) {
+				allPages.click();
+				pause(1000);
+				selectItem_AllPages_AddLinkPopup(driver,linkContent);
+				clickOn_SelectButton_AddLinkPopup(driver);
+				pause(500);
+				configLinkParameter_AddLinkPopup(driver,label, tooltip, isInNewWindows);
+				clickOn_CreateLinkButton_EditLinkParameter_AddLinkPopup(driver);
+			} else {
+				System.out.println("Cannot get All Pages Element");
+			}
+			break;
+		case WIKI_PAGE_SEARCH_PAGE:
+			break;
+		case ATTACHED_FILE_CURRENT_PAGE_UPLOAD_NEW_FILE:
+			break;
+		case ATTACHED_FILE_CURRENT_PAGE_SELECT_FILE:
+			break;
+		case ATTACHED_FILE_ALL_PAGE_SELECT_FILE:
+			break;
+		case WEB_PAGE:
+			break;
+		case EMAIL_ADDRESS:
+			break;
+		default:
+			break;
+		}
+	}
+	public static void addImage_RichTextEditor_WikiPage(WebDriver driver, PopupItem addType){
+		
+		clickOnPopupItem(driver,addType);
+		driver.switchTo().window(driver.getWindowHandle());
+	
+		switch (addType) {
+		case ATTACHED_IMAGE_UPLOAD_NEW_CURRENT_PAGE:
+			Actions builder = new Actions(driver);
+			getMenuBarItem_AddLinkImagePopup(driver, "Current page").click();
+			
+			WebElement xNewImagePreview = getListBoxImage_AddImagePopup(driver).
+					findElement(By.className("xNewImagePreview")).findElement(By.tagName("div"));
+			builder.doubleClick(xNewImagePreview);
+			builder.perform();
+			
+			break;
+		case ATTACHED_IMAGE_SELECT_ONE_CURRENT_PAGE:
+			
+			//builder.doubleClick(onElement)
+			break;
+		case ATTACHED_IMAGE_UPLOAD_NEW_ALL_PAGES:
+			break;
+		case ATTACHED_IMAGE_SELECT_ONE_ALL_PAGES:
+			break;
+		case EXTERNAL_IMAGE:
+			break;
+
+		default:
+			break;
+		}
+	}
 }
+
