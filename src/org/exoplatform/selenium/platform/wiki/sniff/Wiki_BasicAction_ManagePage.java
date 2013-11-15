@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.exoplatform.selenium.platform.EXO_TAG_IDENTIFIER;
 import org.exoplatform.selenium.platform.wiki.WikiUtil;
+import org.exoplatform.selenium.platform.wiki.WikiUtil.PopupItem;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -68,8 +69,10 @@ public class Wiki_BasicAction_ManagePage {
 		//System.out.println("#################Done test 02####################");
 		//wiki.test03_AddPage_CreatePageFromTemplate(driver);
 		//System.out.println("#################Done test 03####################");
-		wiki.test04_AddPage_CreatePageUsingRichTextEditor(driver);
-		System.out.println("#################Done test 04####################");
+		//wiki.test04_AddPage_CreatePageUsingRichTextEditor(driver);
+		//System.out.println("#################Done test 04####################");
+		//wiki.test05_AddPage_CreatePageUsingSourceEditor(driver);
+		wiki.test06_AddPage_PreviewTemplateWhenAddingNewPageFromTemplate(driver);
 	}
 	 public void waitForPageLoaded(WebDriver driver) {
 
@@ -188,9 +191,25 @@ public class Wiki_BasicAction_ManagePage {
 
 		WikiUtil.pause(5000);
 		
-		WebElement linkItem = WikiUtil.getMenuBarItem_WikiRichTextEditor(driver, "Link");
-		linkItem.click();
-			
+		/*WikiUtil.getMenuBarItem_WikiRichTextEditor(driver, "Link").click();
+
+		WikiUtil.pause(5000);
+		
+		//create a link to wiki home
+		WikiUtil.addLink_RichTextEditor_WikiPage(
+				driver,
+				PopupItem.WIKI_PAGE_SELECT_PAGE_IN_ALL_PAGES,
+				"WikiHome",
+				"testLabel",
+				"Wiki Home",
+				false);*/
+		//Add image 
+		
+		WikiUtil.getMenuBarItem_WikiRichTextEditor(driver, "Image").click();
+
+		WikiUtil.pause(5000);
+		
+		WikiUtil.addImage_RichTextEditor_WikiPage(driver, PopupItem.ATTACHED_IMAGE_UPLOAD_NEW_CURRENT_PAGE);
 	}
 
 	/**
@@ -198,18 +217,57 @@ public class Wiki_BasicAction_ManagePage {
 	 */
 	public void test05_AddPage_CreatePageUsingSourceEditor(WebDriver driver) {
 		WikiUtil.navigateToWikiHome(driver);
+	
+	
+		//Wait for wiki page load
+		WikiUtil.pause(5000);
+		
+		WikiUtil.addBlankPage_WikiHome(driver);
+		
+		WikiUtil.pause(5000);
+		
+		//Add title
+		WikiUtil.changeTitle_WikiPage_WikiHome(driver, "test05_AddPage_CreatePageUsingSourceEditor title");
+		//Add content
+		WikiUtil.changeContent_WikiPage_WikiHome(driver, "test05_AddPage_CreatePageUsingSourceEditor content");
+		
+		//Wait for wiki page load
+		WikiUtil.pause(5000);
+				
+		WikiUtil.saveWikiPage_WikiHome(driver);
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test06_AddPage_PreviewTemplateWhenAddingNewPageFromTemplate() {
+	public void test06_AddPage_PreviewTemplateWhenAddingNewPageFromTemplate(WebDriver driver) {
+		  
+				WikiUtil.navigateToWikiHome(driver);
+						
+				//Wait for wiki page load
+				WikiUtil.pause(5000);
+				
+				WikiUtil.previewTemplate(driver);
 	}
-
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test07_AddPage_ResumeADraftWithSaveAsNormal() {
+	public void test07_AddPage_ResumeADraftWithSaveAsNormal(WebDriver driver) {
+WikiUtil.navigateToWikiHome(driver);
+		
+		WikiUtil.pause(5000);
+		
+		WikiUtil.addBlankPage_WikiHome(driver);
+		
+		WikiUtil.pause(5000);
+		
+
+		//Add title
+		WikiUtil.changeTitle_WikiPage_WikiHome(driver, "test01_AddPage_AutoSaveWhenAddingPage title");
+		//Add content
+		WikiUtil.changeContent_WikiPage_WikiHome(driver, "test01_AddPage_AutoSaveWhenAddingPage conten");
+		
+		WikiUtil.pause(30000);
 	}
 
 	/**
