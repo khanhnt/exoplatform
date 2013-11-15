@@ -75,7 +75,8 @@ public class Wiki_BasicAction_ManagePage {
 		//wiki.test06_AddPage_PreviewTemplateWhenAddingNewPageFromTemplate(driver);
 		//wiki.test07_AddPage_ResumeADraftWithSaveAsNormal(driver);
 		//wiki.test08_DeletePage_DeleteADraft(driver);
-		wiki.test09_DeletePage_DeletePageWithRichTextEditor(driver);
+		//wiki.test09_DeletePage_DeletePageWithRichTextEditor(driver);
+		wiki.test12_EditPage_AutoSaveWhenEditingPage(driver);
 	}
 	 public void waitForPageLoaded(WebDriver driver) {
 
@@ -313,7 +314,7 @@ public class Wiki_BasicAction_ManagePage {
 		
 		WikiUtil.pause(5000);
 		
-		WikiUtil.deleteExistingWikiPage(driver,"Two-Column Layout");
+		WikiUtil.deleteExistingWikiPage(driver);
 		
 		
 	}
@@ -321,37 +322,70 @@ public class Wiki_BasicAction_ManagePage {
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test10_DeletePage_DeletePageWithSourceEditor() {
+	public void test10_DeletePage_DeletePageWithSourceEditor(WebDriver driver) {
+		test09_DeletePage_DeletePageWithRichTextEditor(driver);
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test11_DeletePage_DeletePageWithTemplateLayout() {
+	public void test11_DeletePage_DeletePageWithTemplateLayout(WebDriver driver) {
+		test09_DeletePage_DeletePageWithRichTextEditor(driver);
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test12_EditPage_AutoSaveWhenEditingPage() {
+	public void test12_EditPage_AutoSaveWhenEditingPage(WebDriver tmpDriver) {
+		WikiUtil.navigateToWikiHome(tmpDriver);
+		
+		WikiUtil.pause(5000);
+		
+		WikiUtil.editExistingWIkiPage(tmpDriver);
+		
+		WikiUtil.pause(5000);
+		
+		//Add title
+		WikiUtil.changeTitle_WikiPage_WikiHome(tmpDriver, "New test12_EditPage_AutoSaveWhenEditingPage title");
+		//Add content
+		WikiUtil.changeContent_WikiPage_WikiHome(tmpDriver, "New test12_EditPage_AutoSaveWhenEditingPage conten");
+		
+		WikiUtil.pause(30000);
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test13_EditPage_EditPageWithRichTextEditor() {
+	public void test13_EditPage_EditPageWithRichTextEditor(WebDriver tmpDriver) {
+		WikiUtil.navigateToWikiHome(tmpDriver);
+		
+		WikiUtil.pause(5000);
+		
+		WikiUtil.editExistingWIkiPage(tmpDriver);
+		
+		WikiUtil.pause(5000);
+		
+		//Add title
+		WikiUtil.changeTitle_WikiPage_WikiHome(tmpDriver, "New test13_EditPage_EditPageWithRichTextEditor title");
+		//Add content
+		WikiUtil.changeContent_WikiPage_WikiHome(tmpDriver, "New test13_EditPage_EditPageWithRichTextEditor conten");
+	
+		WikiUtil.saveWikiPage_WikiHome(tmpDriver);
+
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
-	public void test14_EditPage_EditPageWithTemplateLayout() {
+	public void test14_EditPage_EditPageWithTemplateLayout(WebDriver driver) {
+		test13_EditPage_EditPageWithRichTextEditor(driver);
 	}
 
 	/**
 	 * Created by khanhnt at Nov 12, 2013
 	 */
 	public void test15_EditPage_EditPageWhenPublishActivityIsChecked() {
+		
 	}
 
 	/**

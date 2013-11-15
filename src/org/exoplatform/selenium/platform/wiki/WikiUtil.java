@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.internal.selenesedriver.FindElement;
 
 /**
  * @author khanhnt
@@ -113,9 +114,13 @@ public class WikiUtil {
 		return getuiLeftContainerArea(driver).findElement(By.id("UITreeExplorer"));
 	}
 	
-	private static WebElement getNode_UITreeExplorer(WebDriver driver, String nodeName){
+	private static WebElement getNode_UITreeExplorer(WebDriver driver){
 		WebElement UITreeExplorer = getUITreeExplorer(driver);
-		return UITreeExplorer.findElement(By.linkText(nodeName));
+		return UITreeExplorer.
+				findElement(By.className("nodeGroup")).
+				findElement(By.className("node")).
+				findElement(By.id("iconTreeExplorer")).
+				findElement(By.className("uiIconFileMini"));
 	}
 	///-------------------------- End Element uiLeftContainerArea ------------------------------///
 	
@@ -556,7 +561,8 @@ public class WikiUtil {
 			List<WebElement> divs = UIWikiPageControlArea.findElements(By
 					.tagName("div"));
 			for (WebElement div : divs) {
-				if (div.getText().equalsIgnoreCase(name))
+				System.out.println("div.getText() "+div.getText() +" "+ div.getText().length());
+				if (div.getText().equalsIgnoreCase(name) || div.getText().contains(name))
 					return div;
 			}
 
@@ -776,14 +782,33 @@ public class WikiUtil {
 				getText())).click();
 	
 	}
-	public static void openExistingWikiPage(WebDriver driver, String title){
-		getNode_UITreeExplorer(driver, title).click();
-		
+	/**
+	 * Open an existing wiki page
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 */
+	private static void openExistingWikiPage(WebDriver driver){
+		getNode_UITreeExplorer(driver).click();		
 	}
 	
-	public static void deleteExistingWikiPage(WebDriver driver, String title){
+	/**
+	 * Open an existing wiki page and edit.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 */
+	public static void editExistingWIkiPage(WebDriver driver){
+		openExistingWikiPage(driver);
+		pause(5000);
+		getButton_WikiPageToolBar_WikiHome(driver, "Edit").click();
+	}
+	
+	/**Delete an existing wiki page.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 */
+	public static void deleteExistingWikiPage(WebDriver driver){
 		
-		openExistingWikiPage(driver, title);
+		openExistingWikiPage(driver);
 		pause(5000);
 		getButton_WikiPageToolBar_WikiHome(driver, "More").click();
 		
@@ -810,7 +835,7 @@ public class WikiUtil {
 	}
 
 	/**
-	 * Add link menu of rich text editor.
+	 * Add a link into a wikipage via  rich text editor.
 	 * Created by khanhnt at Nov 14, 2013.
 	 * @param driver
 	 * @param linkType: using LinkType to determine
@@ -858,6 +883,13 @@ public class WikiUtil {
 			break;
 		}
 	}
+	
+	/**
+	 * Attach an image into a wikipage, via rich text editor.
+	 * Created by khanhnt at Nov 15, 2013
+	 * @param driver
+	 * @param addType
+	 */
 	public static void addImage_RichTextEditor_WikiPage(WebDriver driver, PopupItem addType){
 		
 		clickOnPopupItem(driver,addType);
